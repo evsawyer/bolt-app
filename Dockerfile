@@ -26,4 +26,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application
-CMD ["poetry", "run", "python", "src/bolt_app/app.py"]
+CMD ["python", "src/bolt_app/app.py"]
