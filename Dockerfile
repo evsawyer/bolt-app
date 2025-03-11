@@ -22,8 +22,8 @@ RUN poetry install --no-root
 # Copy the rest of the application files
 COPY . .
 
-# Expose the FastAPI port
+# Expose the port your app will run on
 EXPOSE 8000
 
-# Run the application (modify as needed)
-CMD ["poetry", "run", "uvicorn", "src.bolt_app.app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application
+CMD ["poetry", "run", "python", "src/bolt_app/app.py"]
