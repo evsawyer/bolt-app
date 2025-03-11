@@ -35,4 +35,4 @@ def handle_reaction_added_events(body, logger):
     logger.info(body)
 # Start your app
 if __name__ == "__main__":
-    app.start(port=int(os.environ.get(8000)))
+    app.start(port=int(os.environ.get("PORT", 8000)))
