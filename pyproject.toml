@@ -10,6 +10,8 @@ requires-python = ">=3.13"
 dependencies = [
     "slack-bolt (>=1.22.0,<2.0.0)",
     "python-dotenv (>=1.0.1,<2.0.0)",
+    "requests (>=2.32.3,<3.0.0)",
+    "openai (>=1.66.2,<2.0.0)",
 ]
 
 [tool.poetry]
