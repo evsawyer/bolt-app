@@ -15,11 +15,16 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 
+# print the tail of the slack bot token and the slack singing secret
+print(os.environ.get("SLACK_BOT_TOKEN")[-5:])
+print(os.environ.get("SLACK_SIGNING_SECRET")[-5:])
+
 # Initialize the Slack app
 app = App(
     token=os.environ.get("SLACK_BOT_TOKEN"),
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
+
 
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
