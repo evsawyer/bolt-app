@@ -14,7 +14,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
     handlers=[logging.StreamHandler()]
 )
-
+#test
 # print the tail of the slack bot token and the slack singing secret
 print(os.environ.get("SLACK_BOT_TOKEN")[-5:])
 print(os.environ.get("SLACK_SIGNING_SECRET")[-5:])
