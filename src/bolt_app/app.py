@@ -31,21 +31,34 @@ client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 # Function to get weather data from api.weather.gov
 def get_weather(latitude, longitude):
+    logging.info(f"Fetching weather for coordinates: Lat {latitude}, Lon {longitude}")
     points_url = f"https://api.weather.gov/points/{latitude},{longitude}"
-    response = requests.get(points_url)
     
-    if response.status_code == 200:
-        points_data = response.json()
-        forecast_url = points_data['properties']['forecast']
-        forecast_response = requests.get(forecast_url)
+    try:
+        logging.info(f"Making request to: {points_url}")
+        response = requests.get(points_url)
+        logging.info(f"NWS points response status: {response.status_code}")
         
-        if forecast_response.status_code == 200:
-            forecast_data = forecast_response.json()
-            return forecast_data['properties']['periods'][0]
+        if response.status_code == 200:
+            points_data = response.json()
+            forecast_url = points_data['properties']['forecast']
+            logging.info(f"Fetching forecast from: {forecast_url}")
+            
+            forecast_response = requests.get(forecast_url)
+            logging.info(f"NWS forecast response status: {forecast_response.status_code}")
+            
+            if forecast_response.status_code == 200:
+                forecast_data = forecast_response.json()
+                first_period = forecast_data['properties']['periods'][0]
+                logging.info(f"Successfully retrieved forecast: {first_period['shortForecast']}")
+                return first_period
+            else:
+                logging.error(f"Failed to fetch forecast: {forecast_response.status_code} - {forecast_response.text[:200]}")
         else:
-            logging.error(f"Failed to fetch forecast: {forecast_response.status_code} - {forecast_response.text}")
-    else:
-        logging.error(f"Failed to fetch grid points: {response.status_code} - {response.text}")
+            logging.error(f"Failed to fetch grid points: {response.status_code} - {response.text[:200]}")
+    except Exception as e:
+        logging.error(f"Exception in get_weather: {e}")
+    
     return None
 
 # Function to determine the intent of a message using ChatGPT
@@ -90,15 +103,47 @@ def ask_chatgpt(question):
 
 # Function to get latitude and longitude from OpenStreetMap
 def get_lat_lon(location):
+    # If location is None or empty, use default
+    if not location:
+        logging.info("No location provided, using default: University Heights, San Diego")
+        return "32.7481", "-117.1313"  # Default to University Heights, San Diego
+        
     try:
-        response = requests.get(f"https://nominatim.openstreetmap.org/search?q={location}&format=json")
+        # Add User-Agent header as required by OpenStreetMap
+        headers = {
+            'User-Agent': 'SlackWeatherBot/1.0',
+        }
+        
+        # Format the location for URL
+        formatted_location = location.replace(' ', '+')
+        
+        # Log the request
+        logging.info(f"Querying OpenStreetMap for location: {location}")
+        
+        response = requests.get(
+            f"https://nominatim.openstreetmap.org/search?q={formatted_location}&format=json",
+            headers=headers
+        )
+        
+        # Log the response status and content length
+        logging.info(f"OpenStreetMap response status: {response.status_code}, content length: {len(response.text)}")
+        
         if response.status_code == 200 and response.json():
-            return response.json()[0]['lat'], response.json()[0]['lon']
+            result = response.json()[0]
+            lat, lon = result['lat'], result['lon']
+            # Log the coordinates found
+            logging.info(f"Found coordinates for {location}: Lat {lat}, Lon {lon}")
+            return lat, lon
         else:
-            logging.error(f"Failed to fetch location data: {response.status_code} - {response.text}")
+            logging.error(f"Failed to fetch location data: {response.status_code}")
+            if response.text:
+                logging.error(f"Response content: {response.text[:200]}...")  # Log first 200 chars
+            logging.info(f"Using default coordinates for {location}")
+            return "32.7481", "-117.1313"  # Default to University Heights, San Diego
     except Exception as e:
         logging.error(f"Error calling OpenStreetMap API: {e}")
-    return "32.7481", "-117.1313"  # Default to University Heights, San Diego
+        logging.info(f"Using default coordinates for {location}")
+        return "32.7481", "-117.1313"  # Default to University Heights, San Diego
 
 # Listens for app_mention events
 @app.event("app_mention")
@@ -121,8 +166,8 @@ def handle_app_mention_events(body, say):
         return
 
     if intent_data.get("intent") == "weather":
-        location = intent_data.get("location", "University Heights, San Diego")
-        time = intent_data.get("time", "today")
+        location = intent_data.get("location")
+        time = intent_data.get("time")
         latitude, longitude = get_lat_lon(location)
         weather_data = get_weather(latitude, longitude)
         if weather_data:
