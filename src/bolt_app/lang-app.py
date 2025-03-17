@@ -12,15 +12,20 @@ app = App(
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
-# When the bot is mentioned, send user text to API endpoint
-@app.event("app_mention")
-def handle_mention(body, say):
-    # Extract the user's message (remove the bot mention)
+# When any message is posted in a channel where the bot is present
+@app.event("message")
+def handle_message(body, say):
+    # Extract the user's message
     event = body.get("event", {})
-    user_text = event["text"]
+    
+    # Skip messages from bots (including this bot) to prevent loops
+    if event.get("bot_id") or event.get("subtype") == "bot_message":
+        return
+    
+    user_text = event.get("text", "")
     
     # Define the API endpoint
-    api_url = "https://6daa-2600-1700-420-354f-1434-30ca-3f3d-a54b.ngrok-free.app/api/v1/webhook/55d380d6-5107-4ed9-b7be-fcd82f053f1a"  # Replace with your actual API endpoint
+    api_url = "https://6daa-2600-1700-420-354f-1434-30ca-3f3d-a54b.ngrok-free.app/api/v1/webhook/55d380d6-5107-4ed9-b7be-fcd82f053f1a"  
     
     # Send the message to the API endpoint
     try:
@@ -34,7 +39,6 @@ def handle_mention(body, say):
         
         # Check if the request was successful
         if response.status_code == 202:
-            say(f"I've sent your message to the API!")
         else:
             say(f"Sorry, there was an error sending your message to the API: {response.status_code}")
         
