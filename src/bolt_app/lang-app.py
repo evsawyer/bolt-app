@@ -20,7 +20,7 @@ def handle_mention(body, say):
     user_text = event["text"]
     
     # Define the API endpoint
-    api_url = "https://c1e3-2600-1700-420-354f-1434-30ca-3f3d-a54b.ngrok-free.app/api/v1/run/55d380d6-5107-4ed9-b7be-fcd82f053f1a?stream=false"  # Replace with your actual API endpoint
+    api_url = "https://c1e3-2600-1700-420-354f-1434-30ca-3f3d-a54b.ngrok-free.app/api/v1/webhook/55d380d6-5107-4ed9-b7be-fcd82f053f1a"  # Replace with your actual API endpoint
     
     # Send the message to the API endpoint
     try:
