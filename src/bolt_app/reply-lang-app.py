@@ -57,17 +57,17 @@ def handle_mention(body, say, client):
             print(f"Message count: {len(thread_response.get('messages', []))}")
             print("=============================\n")
             
-            if thread_response["ok"]:
-                thread_history = thread_response["messages"]
+            # Limit thread history to only the most recent 5 messages
+            thread_history = thread_response["messages"][-5:] if thread_response["ok"] else []
                 
-                # Print summary of thread history
-                print("=== THREAD HISTORY SUMMARY ===")
-                for i, msg in enumerate(thread_history):
-                    print(f"Message {i+1}:")
-                    print(f"  User: {msg.get('user')}")
-                    print(f"  Text: {msg.get('text')[:100]}..." if len(msg.get('text', '')) > 100 else f"  Text: {msg.get('text')}")
-                    print(f"  Timestamp: {msg.get('ts')}")
-                print("=============================\n")
+            # Print summary of thread history
+            print("=== THREAD HISTORY SUMMARY ===")
+            for i, msg in enumerate(thread_history):
+                print(f"Message {i+1}:")
+                print(f"  User: {msg.get('user')}")
+                print(f"  Text: {msg.get('text')[:100]}..." if len(msg.get('text', '')) > 100 else f"  Text: {msg.get('text')}")
+                print(f"  Timestamp: {msg.get('ts')}")
+            print("=============================\n")
         except Exception as e:
             print(f"Error fetching thread history: {str(e)}")
             print(f"Exception type: {type(e)}")
