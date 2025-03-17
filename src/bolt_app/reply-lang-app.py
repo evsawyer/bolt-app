@@ -58,8 +58,20 @@ def handle_mention(body, say, client):
             print("=============================\n")
             
             # Limit thread history to only the most recent 5 messages
-            thread_history = thread_response["messages"][-5:] if thread_response["ok"] else []
+            raw_messages = thread_response["messages"][-5:] if thread_response["ok"] else []
+            
+            # Extract just the essential information from each message
+            thread_history = []
+            for msg in raw_messages:
+                # Get user info - either the real name or the user ID
+                user_info = "Bot" if msg.get("bot_id") else f"<@{msg.get('user')}>"
                 
+                thread_history.append({
+                    "user": user_info,
+                    "text": msg.get("text", ""),
+                    "ts": msg.get("ts")
+                })
+            
             # Print summary of thread history
             print("=== THREAD HISTORY SUMMARY ===")
             for i, msg in enumerate(thread_history):
