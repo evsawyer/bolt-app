@@ -13,14 +13,14 @@ app = App(
 )
 
 # When the bot is mentioned, send user text to API endpoint
-@app.event("mention")
+@app.event("app_mention")
 def handle_mention(body, say):
     # Extract the event data from the body
     event = body.get("event", {})
     
     # Define the API endpoint
     api_url = "https://6daa-2600-1700-420-354f-1434-30ca-3f3d-a54b.ngrok-free.app/api/v1/webhook/401e9b89-d2ab-4768-828f-10f641e6bcd8"  # Replace with your actual API endpoint
-    
+
     # Send the entire event to the API endpoint
     try:
         response = requests.post(
