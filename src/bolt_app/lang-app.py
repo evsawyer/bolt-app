@@ -34,6 +34,7 @@ def handle_mention(body, say):
         
         # Check if the request was successful
         if response.status_code == 202:
+            print("Message sent to API successfully")
         else:
             say(f"Sorry, there was an error sending your message to the API: {response.status_code}")
         
