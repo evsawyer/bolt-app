@@ -22,7 +22,7 @@ app = App(
 )
 
 # URL to forward events to
-FORWARD_URL = "http://127.0.0.1:7866/api/v1/webhook/d4af7968-6fa2-44b5-9ea9-da2fe59662e7"
+FORWARD_URL = "https://05ec-2600-1700-420-354f-dd5f-f782-279b-810f.ngrok-free.app/api/v1/webhook/d4af7968-6fa2-44b5-9ea9-da2fe59662e7"
 
 def forward_event(payload: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -131,9 +131,9 @@ if __name__ == "__main__":
     # Check if we're using Socket Mode or HTTP
     if os.environ.get("SOCKET_MODE", "false").lower() == "true":
         # Start in Socket Mode
-        socket_token = os.environ.get("SOCKET_TOKEN") or os.environ.get("SLACK_APP_TOKEN")
+        socket_token = os.environ.get("SLACK_APP_TOKEN")
         if not socket_token:
-            logger.error("SOCKET_TOKEN or SLACK_APP_TOKEN environment variable is required for Socket Mode")
+            logger.error("SLACK_APP_TOKEN environment variable is required for Socket Mode")
             exit(1)
             
         logger.info("Starting app in Socket Mode")
