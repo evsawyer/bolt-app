@@ -87,7 +87,7 @@ def handle_mention(body, say, client):
             print(f"Traceback: {traceback.format_exc()}")
     
     # Define the API endpoint
-    api_url = "https://6daa-2600-1700-420-354f-1434-30ca-3f3d-a54b.ngrok-free.app/api/v1/webhook/401e9b89-d2ab-4768-828f-10f641e6bcd8"
+    api_url = "https://05ec-2600-1700-420-354f-dd5f-f782-279b-810f.ngrok-free.app/api/v1/webhook/55d380d6-5107-4ed9-b7be-fcd82f053f1a"
     
     # Prepare the payload with thread history
     payload = {
