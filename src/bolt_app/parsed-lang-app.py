@@ -22,7 +22,7 @@ app = App(
 )
 
 # URL to forward events to
-FORWARD_URL = os.environ.get("FORWARD_URL", "https://example.com/webhook")
+FORWARD_URL = "http://127.0.0.1:7866/api/v1/webhook/d4af7968-6fa2-44b5-9ea9-da2fe59662e7"
 
 def forward_event(payload: Dict[str, Any]) -> Dict[str, Any]:
     """
