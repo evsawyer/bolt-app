@@ -26,4 +26,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application
-CMD ["python", "src/bolt_app/parsed-lang-app.py"]
+CMD ["python", "src/bolt_app/socket-app-2bots-allevents.py"]
