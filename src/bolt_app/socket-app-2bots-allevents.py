@@ -28,7 +28,7 @@ bot_configs = pd.DataFrame([
         "name": "DummyBot",
         "bot_token": os.environ.get("DUMMY_BOT_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP_TOKEN"),
-        "ping_url": "http://0.0.0.0:7860/api/v1/run/73bead24-6153-45d8-a3df-80abffd0133f?stream=false"
+        "ping_url": "https://langflow-package-28513040513.us-central1.run.app/api/v1/run/06db16e9-efc4-4887-8ac5-f95d80af4eb2?stream=false"
     },
     {
         "name": "DummyBot2",
