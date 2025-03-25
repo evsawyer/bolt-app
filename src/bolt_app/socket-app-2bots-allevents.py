@@ -8,12 +8,16 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 from dotenv import load_dotenv
 from flask import Flask
 
-# Flask app for health checks
+# Create Flask app
 flask_app = Flask(__name__)
 
 @flask_app.route("/")
 def health_check():
     return "OK", 200
+
+def run_flask():
+    port = int(os.environ.get("PORT", 8000))
+    flask_app.run(host="0.0.0.0", port=port)
 
 # Load environment variables
 load_dotenv()
@@ -100,6 +104,11 @@ def forward_event(data, ping_url):
 
 if __name__ == "__main__":
     threads = []
+    # Start Flask app in a separate thread
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+    threads.append(flask_thread)
+    
 
     for _, row in bot_configs.iterrows():
         thread = threading.Thread(target=start_bot, args=(row['name'], row['bot_token'], row['app_token'], row['ping_url']))
