@@ -6,6 +6,14 @@ import pandas as pd
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from dotenv import load_dotenv
+from flask import Flask
+
+# Flask app for health checks
+flask_app = Flask(__name__)
+
+@flask_app.route("/")
+def health_check():
+    return "OK", 200
 
 # Load environment variables
 load_dotenv()
