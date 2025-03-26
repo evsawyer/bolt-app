@@ -6,10 +6,21 @@ import pandas as pd
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from dotenv import load_dotenv
+from flask import Flask
+
+# Create Flask app
+flask_app = Flask(__name__)
+
+@flask_app.route("/")
+def health_check():
+    return "OK", 200
+
+def run_flask():
+    port = int(os.environ.get("PORT", 8000))
+    flask_app.run(host="0.0.0.0", port=port)
 
 # Load environment variables
 load_dotenv()
-
 
 # Define bot configurations in a DataFrame
 bot_configs = pd.DataFrame([
@@ -17,7 +28,7 @@ bot_configs = pd.DataFrame([
         "name": "DummyBot",
         "bot_token": os.environ.get("DUMMY_BOT_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP_TOKEN"),
-        "ping_url": "http://35.236.125.235:8501/api/v1/run/800ff15d-cb6a-4803-8ce4-92b61f253422?stream=false"
+        "ping_url": "https://langflow-package-28513040513.us-central1.run.app/api/v1/run/06db16e9-efc4-4887-8ac5-f95d80af4eb2?stream=false"
     },
     {
         "name": "DummyBot2",
@@ -94,6 +105,12 @@ def forward_event(data, ping_url):
 
 if __name__ == "__main__":
     threads = []
+    # Start Flask app in a separate thread
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+    threads.append(flask_thread)
+    
+
     for _, row in bot_configs.iterrows():
         thread = threading.Thread(target=start_bot, args=(row['name'], row['bot_token'], row['app_token'], row['ping_url']))
         threads.append(thread)
