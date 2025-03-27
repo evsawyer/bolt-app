@@ -10,14 +10,13 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-
 # Define bot configurations in a DataFrame
 bot_configs = pd.DataFrame([
     {
         "name": "DummyBot",
         "bot_token": os.environ.get("DUMMY_BOT_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP_TOKEN"),
-        "ping_url": "http://35.236.125.235:8501/api/v1/run/800ff15d-cb6a-4803-8ce4-92b61f253422?stream=false"
+        "ping_url": "http://35.236.125.235:8501/api/v1/run/70769140-1841-468d-81fe-eac021cf7ac8?stream=false"
     },
     {
         "name": "DummyBot2",
