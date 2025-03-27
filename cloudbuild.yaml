@@ -1,20 +1,21 @@
 steps:
-- id: 'Update bolt-app'
-  name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: /bin/sh
-  args:
-  - '-c'
-  - |
-    mkdir -p ~/root/.ssh && \
-    gcloud secrets versions access latest --secret=cloud-build-ssh-key > ~/root/.ssh/id_rsa && \
-    chmod 600 ~/root/.ssh/id_rsa && \
-    gcloud secrets versions access latest --secret=cloud-build-ssh-key-pub > ~/root/.ssh/id_rsa.pub && \
-    chmod 600 ~/root/.ssh/id_rsa.pub && \
-    set -x && \
-    gcloud compute ssh langflow-vm-0 \
-      --ssh-key-file=~/root/.ssh/id_rsa \
-      --zone=us-west2-c \
-      -- -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-      /bin/sh /home/evan_ivc_media/pull.sh
-options:
-  logging: CLOUD_LOGGING_ONLY
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app', '.']
+
+  # Step 2: Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app']
+
+  # Step 3: SSH into the VM and deploy the new container
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - compute
+      - ssh
+      - langflow-vm-0
+      - --command='docker pull us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app && docker stop bolt-app || true && docker rm bolt-app || true && docker run -d -p 7860:7860 --name=bolt-app us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app'
+
+images:
+  - 'us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app'
+
+timeout: 900s
