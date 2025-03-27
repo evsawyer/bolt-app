@@ -5,12 +5,12 @@ steps:
   args:
   - '-c'
   - |
-    mkdir -p ~/root/.ssh && \\
-    gcloud secrets versions access latest --secret=cloud-build-ssh-key > ~/root/.ssh/id_rsa && \\
-    chmod 600 ~/root/.ssh/id_rsa && \\
-    gcloud secrets versions access latest --secret=cloud-build-ssh-key-pub > ~/root/.ssh/id_rsa.pub && \\
-    chmod 600 ~/root/.ssh/id_rsa.pub && \\
-    set -x && \\
+    mkdir -p ~/root/.ssh && \
+    gcloud secrets versions access latest --secret=cloud-build-ssh-key > ~/root/.ssh/id_rsa && \
+    chmod 600 ~/root/.ssh/id_rsa && \
+    gcloud secrets versions access latest --secret=cloud-build-ssh-key-pub > ~/root/.ssh/id_rsa.pub && \
+    chmod 600 ~/root/.ssh/id_rsa.pub && \
+    set -x && \
     gcloud compute ssh langflow-vm-0 --ssh-key-file=~/root/.ssh/id_rsa --zone=us-west2-c --command='/bin/sh /home/evan_ivc_media/pull.sh'
 
 options:
