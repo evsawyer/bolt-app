@@ -7,3 +7,6 @@ steps:
   - |
     set -x && \
     gcloud compute ssh langflow-vm-0 --zone=us-west2-c --command='/bin/sh /home/evan_ivc_media/pull.sh'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
