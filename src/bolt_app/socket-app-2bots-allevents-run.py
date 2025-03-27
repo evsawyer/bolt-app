@@ -28,13 +28,13 @@ bot_configs = pd.DataFrame([
         "name": "DummyBot",
         "bot_token": os.environ.get("DUMMY_BOT_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP_TOKEN"),
-        "ping_url": "https://langflow-package-28513040513.us-central1.run.app/api/v1/run/06db16e9-efc4-4887-8ac5-f95d80af4eb2?stream=false"
+        "ping_url": "http://0.0.0.0:8502/api/v1/run/ac6b8811-6741-435d-97a8-3674bd683397?stream=false"
     },
     {
         "name": "DummyBot2",
         "bot_token": os.environ.get("DUMMY_BOT2_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP2_TOKEN"),
-        "ping_url": "http://127.0.0.1:7860/api/v1/run/595fb00d-675f-49e4-8283-ff9ec4fc40d7?stream=false"
+        "ping_url": "http://35.236.125.235:8501/api/v1/run/70769140-1841-468d-81fe-eac021cf7ac8?stream=false"
     }
 ])
 
