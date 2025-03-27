@@ -5,16 +5,40 @@ steps:
   args:
   - '-c'
   - |
-    mkdir -p ~/root/.ssh && \
-    gcloud secrets versions access latest --secret=cloud-build-ssh-key > ~/root/.ssh/id_rsa && \
-    chmod 600 ~/root/.ssh/id_rsa && \
-    gcloud secrets versions access latest --secret=cloud-build-ssh-key-pub > ~/root/.ssh/id_rsa.pub && \
-    chmod 600 ~/root/.ssh/id_rsa.pub && \
+    # Ensure the existing Google Compute Engine SSH keys are in place
+    mkdir -p ~/.ssh && \
+    cp /home/evan_ivc_media/.ssh/google_compute_engine ~/.ssh/id_rsa && \
+    cp /home/evan_ivc_media/.ssh/google_compute_engine.pub ~/.ssh/id_rsa.pub && \
+    chmod 600 ~/.ssh/id_rsa && \
+    chmod 600 ~/.ssh/id_rsa.pub && \
     set -x && \
     gcloud compute ssh langflow-vm-0 \
-      --ssh-key-file=~/root/.ssh/id_rsa \
+      --ssh-key-file=~/.ssh/id_rsa \
       --zone=us-west2-c \
       -- -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
       /bin/sh /home/evan_ivc_media/pull.sh
 options:
   logging: CLOUD_LOGGING_ONLY
+
+
+
+# steps:
+# - id: 'Update bolt-app'
+#   name: 'gcr.io/cloud-builders/gcloud'
+#   entrypoint: /bin/sh
+#   args:
+#   - '-c'
+#   - |
+#     mkdir -p ~/root/.ssh && \
+#     gcloud secrets versions access latest --secret=cloud-build-ssh-key > ~/root/.ssh/id_rsa && \
+#     chmod 600 ~/root/.ssh/id_rsa && \
+#     gcloud secrets versions access latest --secret=cloud-build-ssh-key-pub > ~/root/.ssh/id_rsa.pub && \
+#     chmod 600 ~/root/.ssh/id_rsa.pub && \
+#     set -x && \
+#     gcloud compute ssh langflow-vm-0 \
+#       --ssh-key-file=~/root/.ssh/id_rsa \
+#       --zone=us-west2-c \
+#       -- -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+#       /bin/sh /home/evan_ivc_media/pull.sh
+# options:
+#   logging: CLOUD_LOGGING_ONLY
