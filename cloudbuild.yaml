@@ -1,0 +1,9 @@
+steps:
+- id: 'Update bolt-app'
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    set -x && \
+    gcloud compute ssh langflow-vm-0 --zone=us-west2-c --command='/bin/sh /home/evan_ivc_media/pull.sh'
