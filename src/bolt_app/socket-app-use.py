@@ -34,18 +34,28 @@ def start_bot(bot_name, bot_token, app_token, ping_url):
     app = App(token=bot_token)
 
     # @app.event("message")  # Listen to message events
-    # def handle_message_events(body, logger):
-    #     logger.info(f"Message event received for {bot_name}")
-    #     event = body.get("event", {})
-    #     message_text = event.get("text", "")
-    #     data = {
-    #         "input_value": message_text,
-    #         "input_type": "text",
-    #         "output_type": "text"
-    #     }
-    #     forward_event(data, ping_url)
+    # def handle_message_events(body, logger, say):
+    #     # logger.info(f"Message event received for {bot_name}")
+    #     # event = body.get("event", {})
+    #     # message_text = event.get("text", "")
+    #     # data = {
+    #     #     "input_value": message_text,
+    #     #     "input_type": "text",
+    #     #     "output_type": "text"
+    #     # }
+    #     # forward_event(data, ping_url)
+    #     say("hi")
+
+    # @app.middleware
+    # def log_everything(context, payload, next):
+    #     print("=" * 40)
+    #     print(f"📦 Incoming payload:")
+    #     print(json.dumps(payload, indent=2))
+    #     print("=" * 40)
+    #     return next()
+    
     @app.middleware
-    def handle_all_events(body, logger, next, bot_name):
+    def handle_all_events(body, logger, next):
         logger.info(f"event received for {bot_name}")
         print(bot_name, " is receiving an event")
         event = body.get("event", {})
@@ -57,35 +67,36 @@ def start_bot(bot_name, bot_token, app_token, ping_url):
             "output_type": "text"
         }
         forward_event(data, ping_url)
+
         next()
     # app.middleware(handle_all_events)
 
-    @app.event("app_mention")  # Listen to app mention events
-    def handle_app_mention_events(body, logger):
-        # logger.info(f"App mention event received for {bot_name}")
-        # event = body.get("event", {})
-        # event_str = json.dumps(event)  # Convert event to a JSON string
-        # print("event_str: ", event_str)
-        # data = {
-        #     "input_value": event_str,
-        #     "input_type": "text",
-        #     "output_type": "text"
-        # }
-        # forward_event(data, ping_url)
-        print("event received for app mention")
+    # @app.event("app_mention")  # Listen to app mention events
+    # def handle_app_mention_events(body, logger):
+    #     # logger.info(f"App mention event received for {bot_name}")
+    #     # event = body.get("event", {})
+    #     # event_str = json.dumps(event)  # Convert event to a JSON string
+    #     # print("event_str: ", event_str)
+    #     # data = {
+    #     #     "input_value": event_str,
+    #     #     "input_type": "text",
+    #     #     "output_type": "text"
+    #     # }
+    #     # forward_event(data, ping_url)
+    #     print("event received for app mention")
 
-    @app.event("reaction_added")  # Listen to reaction added events
-    def handle_reaction_added_events(body, logger):
-        # logger.info(f"Reaction added event received for {bot_name}")
-        # event = body.get("event", {})
-        # event_str = json.dumps(event)  # Convert event to a JSON string
-        # data = {
-        #     "input_value": event_str,
-        #     "input_type": "text",
-        #     "output_type": "text"
-        # }
-        # forward_event(data, ping_url)
-        print("event received for reaction added")
+#     @app.event("reaction_added")  # Listen to reaction added events
+#     def handle_reaction_added_events(body, logger):
+#         # logger.info(f"Reaction added event received for {bot_name}")
+#         # event = body.get("event", {})
+#         # event_str = json.dumps(event)  # Convert event to a JSON string
+#         # data = {
+#         #     "input_value": event_str,
+#         #     "input_type": "text",
+#         #     "output_type": "text"
+#         # }
+#         # forward_event(data, ping_url)
+#         print("event received for reaction added")
 
     print(f"Info: Starting {bot_name} in Socket Mode!")
     handler = SocketModeHandler(app, app_token)

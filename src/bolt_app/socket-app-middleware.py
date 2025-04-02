@@ -28,7 +28,7 @@ bot_configs = pd.DataFrame([
         "name": "DummyBot",
         "bot_token": os.environ.get("DUMMY_BOT_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP_TOKEN"),
-        "ping_url": "http://35.236.125.235:8501/api/v1/run/70769140-1841-468d-81fe-eac021cf7ac8?stream=false"
+        "ping_url": "http://0.0.0.0:8501/api/v1/run/a7f4a5aa-8fdd-4cb3-ba67-4682d630bb9c?stream=false"
     }
 ])
 
@@ -40,11 +40,17 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         logging.error(f"Tokens are required for {bot_name}, bot cannot start.")
         return
 
-    app = App(token=bot_token, raise_error_for_unhandled_request=True)
-
+    app = App(token=bot_token, raise_error_for_unhandled_request=False)
     @app.middleware
-    def handle_all_events(body, logger, next):
-        logger.info(f"App mention event received for {bot_name}")
+    def log_everything(context, payload, next):
+        print("=" * 40)
+        print(f"📦 Incoming payload:")
+        print(json.dumps(payload, indent=2))
+        print("=" * 40)
+        return next()
+    @app.middleware
+    def handle_all_events(body, logger, next, context):
+        logger.info(f"event received for {bot_name}")
         event = body.get("event", {})
         event_str = json.dumps(event)  # Convert event to a JSON string
         logger.info(f"Event String for {bot_name}: {event_str}")
@@ -58,7 +64,8 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         except Exception as e:
             logging.error(f"Error forwarding event for {bot_name}: {e}")
             logging.error(traceback.format_exc())
-        next()
+        # next()
+        context.ack()
 
   
     # @app.error
@@ -95,12 +102,11 @@ def forward_event(data, ping_url, api_key, bot_name):
             ping_url,
             headers=headers,
             json=data,
-            timeout=5
+            timeout=10
         )
         print("response: ", response)
         if response.status_code >= 200 and response.status_code < 300:
             logging.info("Info: Successfully pinged URL")
-            traceback.print_exc()
         else:
             logging.error(f"Failed to ping URL. Status code: {response.status_code}, Response: {response.text}")
     except Exception as e:
