@@ -28,7 +28,8 @@ bot_configs = pd.DataFrame([
         "bot_token": os.environ.get("DUMMY_BOT_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP_TOKEN"),
         # "ping_url": "http://35.236.125.235:8501/api/v1/run/32467c58-689f-4c61-91db-5f4cdf4008dd?stream=false"
-        "ping_url": "http://35.236.125.235:8501/api/v1/run/32467c58-689f-4c61-91db-5f4cdf4008dd?stream=false"
+        # "ping_url": "http://35.236.125.235:8501/api/v1/run/32467c58-689f-4c61-91db-5f4cdf4008dd?stream=false"
+        "ping_url": os.environ.get("PING_URL")
     }
 ])
 
