@@ -42,27 +42,8 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
 
     app = App(token=bot_token, raise_error_for_unhandled_request=True)
 
-    #@app.event("message")  # Listen to message events
-    #def handle_message_events(body, logger):
-    #    print("Message event called for bot: ", bot_name)
-    # def handle_message_events(body, logger):
-    #     print("Mesage event called for bot: ", bot_name)
-    #     print("\nTraceback full exc:")
-    #     traceback.print_exc()
-    #     print("\nTraceback call stack:")
-    #     traceback.print_stack()
-        # logger.info(f"Message event received for {bot_name}")
-        # event = body.get("event", {})
-        # message_text = event.get("text", "")
-        # data = {
-        #     "input_value": message_text,
-        #     "input_type": "text",
-        #     "output_type": "text"
-        # }
-        # forward_event(data, ping_url, api_key)
-
-    @app.event("app_mention")  # Listen to app mention events
-    def handle_app_mention_events(body, logger):
+    @app.middleware
+    def handle_all_events(body, logger, next):
         logger.info(f"App mention event received for {bot_name}")
         event = body.get("event", {})
         event_str = json.dumps(event)  # Convert event to a JSON string
@@ -77,31 +58,20 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         except Exception as e:
             logging.error(f"Error forwarding event for {bot_name}: {e}")
             logging.error(traceback.format_exc())
+        next()
 
+  
+    # @app.error
+    # def handle_errors(error, body, logger):
+    #     """Global error handler to catch and log errors, especially unhandled requests."""
+    #     logger.error(f"({bot_name}) Uncaught error: {error}")
+    #     # Log the body of the request that caused the error
+    #     logger.error(f"({bot_name}) Request body: {body}")
+    #     # For BoltUnhandledRequestError, Bolt itself usually returns a 404.
+    #     # For other errors, you might want to return a specific response,
+    #     # but for debugging, just logging is often sufficient.
 
-    @app.event("reaction_added")  # Listen to reaction added events
-    def handle_reaction_added_events(body, logger):
-        logger.info(f"Reaction added event received for {bot_name}")
-        event = body.get("event", {})
-        event_str = json.dumps(event)  # Convert event to a JSON string
-        data = {
-            "input_value": event_str,
-            "input_type": "text",
-            "output_type": "text"
-        }
-        forward_event(data, ping_url, api_key, bot_name)
-    
-    @app.error
-    def handle_errors(error, body, logger):
-        """Global error handler to catch and log errors, especially unhandled requests."""
-        logger.error(f"({bot_name}) Uncaught error: {error}")
-        # Log the body of the request that caused the error
-        logger.error(f"({bot_name}) Request body: {body}")
-        # For BoltUnhandledRequestError, Bolt itself usually returns a 404.
-        # For other errors, you might want to return a specific response,
-        # but for debugging, just logging is often sufficient.
-
-    print(f"Info: Starting {bot_name} in Socket Mode!")
+    # print(f"Info: Starting {bot_name} in Socket Mode!")
 
     try:
         handler = SocketModeHandler(app, app_token)
@@ -112,11 +82,6 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
 
 # Helper function to forward events
 def forward_event(data, ping_url, api_key, bot_name):
-    print("\nTraceback full exc:")
-    traceback.print_exc()
-    print("\nTraceback call stack:")
-    traceback.print_stack()
-
     print("forwarding the event to ", bot_name, ": ", data)
     headers = {"Content-Type": "application/json"}
     if api_key:
