@@ -8,7 +8,6 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_bolt.error import BoltUnhandledRequestError
 from dotenv import load_dotenv
 import logging
-import traceback
 
 # Load environment variables
 load_dotenv()
@@ -28,7 +27,7 @@ bot_configs = pd.DataFrame([
         "name": "DummyBot",
         "bot_token": os.environ.get("DUMMY_BOT_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP_TOKEN"),
-        "ping_url": "http://35.236.125.235:8501/api/v1/run/70769140-1841-468d-81fe-eac021cf7ac8?stream=false"
+        "ping_url": "http://0.0.0.0:8501/api/v1/run/a7f4a5aa-8fdd-4cb3-ba67-4682d630bb9c?stream=false"
     }
 ])
 
@@ -42,31 +41,22 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
 
     app = App(token=bot_token, raise_error_for_unhandled_request=True)
 
-    #@app.event("message")  # Listen to message events
-    #def handle_message_events(body, logger):
-    #    print("Message event called for bot: ", bot_name)
-    # def handle_message_events(body, logger):
-    #     print("Mesage event called for bot: ", bot_name)
-    #     print("\nTraceback full exc:")
-    #     traceback.print_exc()
-    #     print("\nTraceback call stack:")
-    #     traceback.print_stack()
-        # logger.info(f"Message event received for {bot_name}")
-        # event = body.get("event", {})
-        # message_text = event.get("text", "")
-        # data = {
-        #     "input_value": message_text,
-        #     "input_type": "text",
-        #     "output_type": "text"
-        # }
-        # forward_event(data, ping_url, api_key)
-
+    @app.middleware
+    def log_everything(context, payload, next):
+        print("=" * 40)
+        print(f"📦 Incoming payload:")
+        print(json.dumps(payload, indent=2))
+        print("=" * 40)
+        next()
+    @app.event("message")
+    def handle_message_events(body, logger):
+        pass
     @app.event("app_mention")  # Listen to app mention events
     def handle_app_mention_events(body, logger):
         logger.info(f"App mention event received for {bot_name}")
         event = body.get("event", {})
         event_str = json.dumps(event)  # Convert event to a JSON string
-        logger.info(f"Event String for {bot_name}: {event_str}")
+        # logger.info(f"Event String for {bot_name}: {event_str}")
         data = {
             "input_value": event_str,
             "input_type": "text",
@@ -76,7 +66,6 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
             forward_event(data, ping_url, api_key, bot_name)
         except Exception as e:
             logging.error(f"Error forwarding event for {bot_name}: {e}")
-            logging.error(traceback.format_exc())
 
 
     @app.event("reaction_added")  # Listen to reaction added events
@@ -108,16 +97,11 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         handler.start()
     except Exception as e:
         logging.error(f"Error starting Socket Mode handler for {bot_name}: {e}")
-        logging.error(traceback.format_exc())
 
 # Helper function to forward events
 def forward_event(data, ping_url, api_key, bot_name):
-    print("\nTraceback full exc:")
-    traceback.print_exc()
-    print("\nTraceback call stack:")
-    traceback.print_stack()
 
-    print("forwarding the event to ", bot_name, ": ", data)
+    print("forwarding the event to ", bot_name)
     headers = {"Content-Type": "application/json"}
     if api_key:
         headers['x-api-key'] = api_key
@@ -130,12 +114,11 @@ def forward_event(data, ping_url, api_key, bot_name):
             ping_url,
             headers=headers,
             json=data,
-            timeout=5
+            timeout=10
         )
         print("response: ", response)
         if response.status_code >= 200 and response.status_code < 300:
             logging.info("Info: Successfully pinged URL")
-            traceback.print_exc()
         else:
             logging.error(f"Failed to ping URL. Status code: {response.status_code}, Response: {response.text}")
     except Exception as e:
