@@ -1,13 +1,14 @@
 import os
 import requests
 import json
-# import threading # Removed threading
+import threading # <-- Import threading
 import pandas as pd
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_bolt.error import BoltUnhandledRequestError
 from dotenv import load_dotenv
 import logging
+from http.server import BaseHTTPRequestHandler, HTTPServer # <-- Import HTTP server modules
 
 # Load environment variables
 load_dotenv()
@@ -35,6 +36,27 @@ bot_configs = pd.DataFrame([
 
 # Assume the API Key environment variable name
 FLOW_API_KEY = os.environ.get("FLOW_API_KEY")
+
+# --- Health Check Server ---
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        # Respond with 200 OK for any GET request
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+def run_health_check_server(port):
+    server_address = ('', port)
+    httpd = HTTPServer(server_address, HealthCheckHandler)
+    logging.info(f"Starting health check server on port {port}")
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
+    logging.info(f"Stopped health check server on port {port}")
+# --- End Health Check Server ---
 
 def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
     if not bot_token or not app_token:
@@ -93,13 +115,22 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         # For other errors, you might want to return a specific response,
         # but for debugging, just logging is often sufficient.
 
+    # Start the health check server in a background thread
+    # Cloud Run sets the PORT env var (defaults to 8080 if not set)
+    health_check_port = int(os.environ.get("PORT", 8080))
+    health_thread = threading.Thread(target=run_health_check_server, args=(health_check_port,), daemon=True)
+    health_thread.start()
+
     print(f"Info: Starting {bot_name} in Socket Mode!")
 
     try:
         handler = SocketModeHandler(app, app_token)
-        handler.start()
+        handler.start() # This blocks until stopped
     except Exception as e:
         logging.error(f"Error starting Socket Mode handler for {bot_name}: {e}")
+    finally:
+         # Optional: Could add logic here to signal the health check server to stop if needed
+         pass
 
 # Helper function to forward events
 def forward_event(data, ping_url, api_key, bot_name):
