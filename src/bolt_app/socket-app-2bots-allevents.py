@@ -27,7 +27,8 @@ bot_configs = pd.DataFrame([
         "name": "DummyBot",
         "bot_token": os.environ.get("DUMMY_BOT_TOKEN"),
         "app_token": os.environ.get("DUMMY_APP_TOKEN"),
-        "ping_url": "http://0.0.0.0:8501/api/v1/run/a7f4a5aa-8fdd-4cb3-ba67-4682d630bb9c?stream=false"
+        # "ping_url": "http://35.236.125.235:8501/api/v1/run/32467c58-689f-4c61-91db-5f4cdf4008dd?stream=false"
+        "ping_url": "http://localhost:8501/api/v1/run/32467c58-689f-4c61-91db-5f4cdf4008dd?stream=false"
     }
 ])
 
@@ -48,9 +49,11 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         print(json.dumps(payload, indent=2))
         print("=" * 40)
         next()
+
     @app.event("message")
     def handle_message_events(body, logger):
         pass
+
     @app.event("app_mention")  # Listen to app mention events
     def handle_app_mention_events(body, logger):
         logger.info(f"App mention event received for {bot_name}")
@@ -66,7 +69,6 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
             forward_event(data, ping_url, api_key, bot_name)
         except Exception as e:
             logging.error(f"Error forwarding event for {bot_name}: {e}")
-
 
     @app.event("reaction_added")  # Listen to reaction added events
     def handle_reaction_added_events(body, logger):
