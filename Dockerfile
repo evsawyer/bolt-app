@@ -22,8 +22,5 @@ RUN poetry install --no-root
 # Copy the rest of the application files
 COPY . .
 
-# Expose the port your app will run on
-EXPOSE 8000
-
 # Run the application
 CMD ["python", "src/bolt_app/socket-app-test.py"]

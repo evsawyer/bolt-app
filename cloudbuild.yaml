@@ -1,21 +1,60 @@
 steps:
-  # Step 1: Build the Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app', '.']
-
-  # Step 2: Push the image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app']
-
-  # Step 3: SSH into the VM and deploy the new container
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - name: gcr.io/cloud-builders/docker
     args:
-      - compute
-      - ssh
-      - langflow-vm-0
-      - --command='docker pull us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app && docker stop bolt-app || true && docker rm bolt-app || true && docker run -d -p 7860:7860 --name=bolt-app us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app'
-
+      - build
+      - '--no-cache'
+      - '-t'
+      - >-
+        $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+      - .
+      - '-f'
+      - Dockerfile
+    id: Build
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - >-
+        $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+    id: Push
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args:
+      - run
+      - services
+      - update
+      - $_SERVICE_NAME
+      - '--platform=managed'
+      - >-
+        --image=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+      - >-
+        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID
+      - '--region=$_DEPLOY_REGION'
+      - '--quiet'
+      - '--update-env-vars=BOT_NAME=${_BOT_NAME}'
+      - >-
+        --set-secrets=FLOW_API_KEY=projects/28513040513/secrets/$_FLOW_API_KEY:latest
+      - >-
+        --set-secrets=BOT_TOKEN=projects/28513040513/secrets/$_BOT_TOKEN:latest
+      - >-
+        --set-secrets=APP_TOKEN=projects/28513040513/secrets/$_APP_TOKEN:latest
+      - >-
+        --set-secrets=PING_URL=projects/28513040513/secrets/$_PING_URL:latest
+    id: Deploy
+    entrypoint: gcloud
 images:
-  - 'us-west2-docker.pkg.dev/langflow-454416/ivc-docker-images/bolt-app'
-
-timeout: 900s
+  - >-
+    $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+options:
+  substitutionOption: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+substitutions:
+  _AR_HOSTNAME: us-central1-docker.pkg.dev
+  _AR_REPOSITORY: cloud-run-source-deploy
+  _AR_PROJECT_ID: boreal-conquest-452919-s4
+  _PLATFORM: managed
+  _SERVICE_NAME: bolt-app
+  _TRIGGER_ID: e084cf9b-a519-4002-878c-9db87c51adf1
+  _DEPLOY_REGION: us-central1
+tags:
+  - gcp-cloud-build-deploy-cloud-run
+  - gcp-cloud-build-deploy-cloud-run-managed
+  - bolt-app
