@@ -66,7 +66,7 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         return
 
     app = App(token=bot_token, raise_error_for_unhandled_request=True)
-
+#comment
     @app.middleware
     def log_everything(context, payload, next):
         print("=" * 40)
@@ -163,7 +163,7 @@ def forward_event(data, ping_url, api_key, bot_name):
 if __name__ == "__main__":
 
     # Call start_bot directly for the first bot
-    print(f"Starting single bot: {bot_name}")
+    print(f"Starting bot: {bot_name}")
     start_bot(
         bot_name=bot_name,
         bot_token=bot_token,
