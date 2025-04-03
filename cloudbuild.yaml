@@ -31,13 +31,13 @@ steps:
       - '--quiet'
       - '--update-env-vars=BOT_NAME=${_BOT_NAME}'
       - >-
-        --set-secrets=FLOW_API_KEY=projects/28513040513/secrets/$_FLOW_API_KEY:latest
+        --set-secrets=FLOW_API_KEY=projects/28513040513/secrets/${_FLOW_API_KEY}:latest
       - >-
-        --set-secrets=BOT_TOKEN=projects/28513040513/secrets/$_BOT_TOKEN:latest
+        --set-secrets=BOT_TOKEN=projects/28513040513/secrets/${_BOT_TOKEN}:latest
       - >-
-        --set-secrets=APP_TOKEN=projects/28513040513/secrets/$_APP_TOKEN:latest
+        --set-secrets=APP_TOKEN=projects/28513040513/secrets/${_APP_TOKEN}:latest
       - >-
-        --set-secrets=PING_URL=projects/28513040513/secrets/$_PING_URL:latest
+        --set-secrets=PING_URL=projects/28513040513/secrets/${_PING_URL}:latest
     id: Deploy
     entrypoint: gcloud
 images:
