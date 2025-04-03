@@ -13,6 +13,10 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 # Set working directory
 WORKDIR /app
 
+# --- Add this line for confirmation ---
+RUN echo "**** Dockerfile: I am being built! ****"
+# --- End of confirmation line ---
+
 # Copy the project files
 COPY pyproject.toml poetry.lock ./
 
@@ -22,5 +26,8 @@ RUN poetry install --no-root
 # Copy the rest of the application files
 COPY . .
 
+# Expose the port your app will run on
+EXPOSE 8080
+
 # Run the application
-CMD ["python", "src/bolt_app/socket-app-test.py"]
+CMD ["python", "src/bolt_app/socket-app-inject.py"]

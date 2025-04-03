@@ -15,7 +15,6 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
 flow_api_key = os.environ.get("FLOW_API_KEY")
 bot_name = os.environ.get("BOT_NAME")
 bot_token = os.environ.get("BOT_TOKEN")
@@ -120,7 +119,7 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
 
     # Start the health check server in a background thread
     # Cloud Run sets the PORT env var (defaults to 8080 if not set)
-    health_check_port = int(os.environ.get("PORT", 8080))
+    health_check_port = 8080
     health_thread = threading.Thread(target=run_health_check_server, args=(health_check_port,), daemon=True)
     health_thread.start()
 
