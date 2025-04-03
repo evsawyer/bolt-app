@@ -16,6 +16,21 @@ steps:
       - >-
         $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
     id: Push
+    waitFor: ['Build']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    id: 'Show Substitutions'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+          echo "--- Verifying Substitution Values ---"
+          echo "SERVICE_NAME: ${_SERVICE_NAME}"
+          echo "BOT_TOKEN Secret Name: ${_BOT_TOKEN}"
+          echo "APP_TOKEN Secret Name: ${_APP_TOKEN}"
+          echo "PING_URL Secret Name: ${_PING_URL}"
+          echo "FLOW_API_KEY Secret Name: ${_FLOW_API_KEY}"
+          echo "------------------------------------"
+    waitFor: ['Push']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     args:
       - run
@@ -40,6 +55,7 @@ steps:
         --set-secrets=PING_URL=projects/28513040513/secrets/${_PING_URL}:latest
     id: Deploy
     entrypoint: gcloud
+    waitFor: ['Show Substitutions']
 images:
   - >-
     $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
