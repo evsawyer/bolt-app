@@ -1,8 +1,7 @@
 import os
 import requests
 import json
-import threading # <-- Import threading
-import pandas as pd
+import threading
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_bolt.error import BoltUnhandledRequestError
@@ -15,9 +14,6 @@ load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-# Assume the API Key environment variable name
 
 
 flow_api_key = os.environ.get("FLOW_API_KEY")
