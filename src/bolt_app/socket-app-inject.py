@@ -166,17 +166,13 @@ def forward_event(data, ping_url, api_key, bot_name):
         logging.error(f"Exception while pinging URL: {str(e)}")
 
 if __name__ == "__main__":
-    if not flow_api_key:
-        logging.warning("Environment variable FLOW_API_KEY not set. API key header will not be sent.")
 
-        # Call start_bot directly for the first bot
-        print(f"Starting single bot: {bot_name}")
-        start_bot(
-            bot_name=bot_name,
-            bot_token=bot_token,
-            app_token=app_token,
-            ping_url=ping_url,
-            api_key=flow_api_key
-        )
-    else:
-        logging.error("No bot configurations found in bot_configs DataFrame. Cannot start bot.")
+    # Call start_bot directly for the first bot
+    print(f"Starting single bot: {bot_name}")
+    start_bot(
+        bot_name=bot_name,
+        bot_token=bot_token,
+        app_token=app_token,
+        ping_url=ping_url,
+        api_key=flow_api_key
+    )
