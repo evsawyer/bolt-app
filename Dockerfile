@@ -30,4 +30,4 @@ COPY . .
 EXPOSE 8080
 
 # Run the application
-CMD ["python", "src/bolt_app/socket-app-inject.py"]
+CMD ["python", "src/bolt_app/socket-app-session-id.py"]
