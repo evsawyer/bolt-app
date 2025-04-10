@@ -109,7 +109,7 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         try:
             forward_event(data, ping_url, api_key, bot_name)
         except Exception as e:
-            logging.error(f"Error forwarding event for {bot_name}: {e}")
+            logger.error(f"Error forwarding event for {bot_name}: {e}")
 
     @app.event("reaction_added")  # Listen to reaction added events
     def handle_reaction_added_events(body, logger):
@@ -153,9 +153,11 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
 # Helper function to forward events
 def forward_event(data, ping_url, api_key, bot_name):
     logging.info("forwarding the event to ", bot_name)
+    print("forwarding the event to ", bot_name)
     logging.info("ping_url: ", ping_url)
-    #logging info api key tail.. tailing 10 characters
+    print("ping_url: ", ping_url)
     logging.info("api_key: ", api_key[-10:])
+    print("api_key: ", api_key[-10:])
 
 
     print("forwarding the event to ", bot_name)
