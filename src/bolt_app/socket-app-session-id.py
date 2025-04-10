@@ -152,6 +152,11 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
 
 # Helper function to forward events
 def forward_event(data, ping_url, api_key, bot_name):
+    logging.info("forwarding the event to ", bot_name)
+    logging.info("ping_url: ", ping_url)
+    #logging info api key tail.. tailing 10 characters
+    logging.info("api_key: ", api_key[-10:])
+
 
     print("forwarding the event to ", bot_name)
     headers = {"Content-Type": "application/json"}
