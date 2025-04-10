@@ -84,20 +84,16 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         logger.info(f"App mention event received for {bot_name}")
         event = body.get("event", {})
 
+        channel_id = event.get("channel")
         # Get timestamps from the event
         ts = event.get("ts")
         thread_ts = event.get("thread_ts")
 
         # Determine session_id: use thread_ts if present, otherwise use ts
         # Explicitly convert the result to a string
-        session_id = str(thread_ts if thread_ts else ts)
-
-        if thread_ts:
-            # print hey that's a thread, and make it super recognizable and bold
-            print(f"\033[91mHey that's a thread!\033[0m")
-            print("thread_ts: ", thread_ts)
-            print("ts: ", ts)
-
+        # make the session id the channel_id - thread_ts
+        # if only the thred_ts is unavailable, make the session_id channel_id-ts
+        session_id = str(channel_id + "-" + thread_ts if thread_ts else channel_id + "-" + ts)
 
         # Now session_id is guaranteed to be a string
         # (e.g., "1701234567.123456" or potentially "None" if ts was also None)
