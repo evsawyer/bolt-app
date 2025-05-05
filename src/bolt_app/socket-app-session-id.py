@@ -20,7 +20,7 @@ bot_name = os.environ.get("BOT_NAME")
 bot_token = os.environ.get("BOT_TOKEN")
 app_token = os.environ.get("APP_TOKEN")
 ping_url = os.environ.get("PING_URL")
-ping_url="http://127.0.0.1:7861/api/v1/run/5ba10323-2e67-4070-b3b0-128f6d3900bd?stream=false"
+# ping_url="http://127.0.0.1:7861/api/v1/run/5ba10323-2e67-4070-b3b0-128f6d3900bd?stream=false"
 
 
 #add checks that all these are indeed set
