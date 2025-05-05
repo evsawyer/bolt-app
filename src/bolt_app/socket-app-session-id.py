@@ -20,6 +20,7 @@ bot_name = os.environ.get("BOT_NAME")
 bot_token = os.environ.get("BOT_TOKEN")
 app_token = os.environ.get("APP_TOKEN")
 ping_url = os.environ.get("PING_URL")
+ping_url="http://127.0.0.1:7861/api/v1/run/5ba10323-2e67-4070-b3b0-128f6d3900bd?stream=false"
 
 
 #add checks that all these are indeed set
@@ -66,14 +67,15 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         return
 
     app = App(token=bot_token, raise_error_for_unhandled_request=True)
-#comment
-    @app.middleware
-    def log_everything(context, payload, next):
-        print("=" * 40)
-        print(f"📦 Incoming payload:")
-        print(json.dumps(payload, indent=2))
-        print("=" * 40)
-        next()
+
+    # @app.middleware
+    # def log_everything(context, payload, next):
+    #     print("=" * 40)
+    #     print(f"📦 Incoming payload to middleware:")
+    #     print(json.dumps(payload, indent=2))
+    #     print("=" * 40)
+    #     next()
+    
 
     @app.event("message")
     def handle_message_events(body, logger):
@@ -83,6 +85,11 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
     def handle_app_mention_events(body, logger):
         logger.info(f"App mention event received for {bot_name}")
         event = body.get("event", {})
+        # print the entire event
+        print("=" * 40)
+        print(f"📦 Incoming payload to app mention:")
+        print(json.dumps(body, indent=2))
+        print("=" * 40)
 
         channel_id = event.get("channel")
         # Get timestamps from the event
@@ -158,7 +165,6 @@ def forward_event(data, ping_url, api_key, bot_name):
     headers = {"Content-Type": "application/json"}
     if api_key:
         headers['x-api-key'] = api_key
-        print("Info: Adding x-api-key header")
     else:
         logging.warning("FLOW_API_KEY not set. Proceeding without x-api-key header.")
 
@@ -175,7 +181,7 @@ def forward_event(data, ping_url, api_key, bot_name):
         else:
             logging.error(f"Failed to ping URL. Status code: {response.status_code}, Response: {response.text}")
     except Exception as e:
-        logging.error(f"Exception while pinging URL: {str(e)}")
+        logging.warning(f"Exception while pinging URL: {str(e)}")
 
 if __name__ == "__main__":
 
