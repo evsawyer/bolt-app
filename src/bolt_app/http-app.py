@@ -3,8 +3,6 @@ import requests
 import json
 import threading
 from slack_bolt import App
-# from slack_bolt.adapter.socket_mode import SocketModeHandler
-from slack_bolt.error import BoltUnhandledRequestError
 from dotenv import load_dotenv
 import logging
 from http.server import BaseHTTPRequestHandler, HTTPServer # <-- Import HTTP server modules
@@ -18,14 +16,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 flow_api_key = os.environ.get("FLOW_API_KEY")
 bot_name = os.environ.get("BOT_NAME")
 bot_token = os.environ.get("BOT_TOKEN")
-app_token = os.environ.get("APP_TOKEN")
 ping_url = os.environ.get("PING_URL")
 
 # custom local testing
 # ping_url="https://langflow.ivc.media/api/v1/run/971042c4-c8a0-4889-a842-8a403a1d2a8b?stream=false"
 # flow_api_key="sk-gP0BDYIKrkqqxmL_36kVtdPmmMIZMlimvbnQIwOcKTM"
-
-
 
 #add checks that all these are indeed set
 if not os.environ.get("FLOW_API_KEY"):
@@ -36,9 +31,6 @@ if not os.environ.get("BOT_NAME"):
     exit(1)
 if not os.environ.get("BOT_TOKEN"):
     logging.error("BOT_TOKEN not set. Cannot start bot.")
-    exit(1)
-if not os.environ.get("APP_TOKEN"):
-    logging.error("APP_TOKEN not set. Cannot start bot.")
     exit(1)
 if not os.environ.get("PING_URL"):
     logging.error("PING_URL not set. Cannot start bot.")
@@ -65,21 +57,8 @@ def run_health_check_server(port):
     logging.info(f"Stopped health check server on port {port}")
 # --- End Health Check Server ---
 
-def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
-    if not bot_token or not app_token:
-        logging.error(f"Tokens are required for {bot_name}, bot cannot start.")
-        return
-
+def start_bot(bot_name, bot_token, ping_url, api_key):
     app = App(token=bot_token, raise_error_for_unhandled_request=True)
-
-    # @app.middleware
-    # def log_everything(context, payload, next):
-    #     print("=" * 40)
-    #     print(f"📦 Incoming payload to middleware:")
-    #     print(json.dumps(payload, indent=2))
-    #     print("=" * 40)
-    #     next()
-    
 
     @app.event("message")
     def handle_message_events(body, logger):
@@ -99,18 +78,8 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
         # Get timestamps from the event
         ts = event.get("ts")
         thread_ts = event.get("thread_ts")
-
-        # Determine session_id: use thread_ts if present, otherwise use ts
-        # Explicitly convert the result to a string
-        # make the session id the channel_id - thread_ts
-        # if only the thred_ts is unavailable, make the session_id channel_id-ts
         session_id = str(channel_id + "-" + thread_ts if thread_ts else channel_id + "-" + ts)
-
-        # Now session_id is guaranteed to be a string
-        # (e.g., "1701234567.123456" or potentially "None" if ts was also None)
-
         event_str = json.dumps(event)  # Convert event to a JSON string
-        # logger.info(f"Event String for {bot_name}: {event_str}")
         data = {
             "input_value": event_str,
             "input_type": "text",
@@ -138,28 +107,20 @@ def start_bot(bot_name, bot_token, app_token, ping_url, api_key):
     def handle_errors(error, body, logger):
         """Global error handler to catch and log errors, especially unhandled requests."""
         logger.error(f"({bot_name}) Uncaught error: {error}")
-        # Log the body of the request that caused the error
         logger.error(f"({bot_name}) Request body: {body}")
-        # For BoltUnhandledRequestError, Bolt itself usually returns a 404.
-        # For other errors, you might want to return a specific response,
-        # but for debugging, just logging is often sufficient.
 
-    # Start the health check server in a background thread
-    # Cloud Run sets the PORT env var (defaults to 8080 if not set)
     health_check_port = 8080
     health_thread = threading.Thread(target=run_health_check_server, args=(health_check_port,), daemon=True)
     health_thread.start()
 
-    print(f"Info: Starting {bot_name} in Socket Mode!")
-
+    print(f"Info: Starting {bot_name} in HTTP Mode!")
     try:
         app.start(port=int(os.environ.get("PORT", 8000)))
     except Exception as e:
-        logging.error(f"Error starting Socket Mode handler for {bot_name}: {e}")
+        logging.error(f"Error starting app for {bot_name}: {e}")
     finally:
          # Optional: Could add logic here to signal the health check server to stop if needed
          pass
-
 # Helper function to forward events
 def forward_event(data, ping_url, api_key, bot_name):
     logging.info(f"forwarding the event to {bot_name}")
@@ -176,7 +137,7 @@ def forward_event(data, ping_url, api_key, bot_name):
             ping_url,
             headers=headers,
             json=data,
-            timeout=5
+            timeout=20
         )
         print("response: ", response)
         if response.status_code >= 200 and response.status_code < 300:
@@ -187,13 +148,10 @@ def forward_event(data, ping_url, api_key, bot_name):
         logging.warning(f"Exception while pinging URL: {str(e)}")
 
 if __name__ == "__main__":
-
-    # Call start_bot directly for the first bot
     print(f"Starting bot: {bot_name}")
     start_bot(
         bot_name=bot_name,
         bot_token=bot_token,
-        app_token=app_token,
         ping_url=ping_url,
         api_key=flow_api_key
     )
