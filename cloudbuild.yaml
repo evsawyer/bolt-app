@@ -29,6 +29,7 @@ steps:
           echo "APP_TOKEN Secret Name: ${_APP_TOKEN}"
           echo "PING_URL Secret Name: ${_PING_URL}"
           echo "FLOW_API_KEY Secret Name: ${_FLOW_API_KEY}"
+          echo "SLACK_SIGNING_SECRET: ${_SLACK_SIGNING_SECRET}"
           echo "------------------------------------"
     waitFor: ['Push']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
@@ -53,6 +54,8 @@ steps:
         --set-secrets=APP_TOKEN=projects/28513040513/secrets/${_APP_TOKEN}:latest
       - >-
         --set-secrets=PING_URL=projects/28513040513/secrets/${_PING_URL}:latest
+      - >-
+        --set-secrets=SLACK_SIGNING_SECRET=projects/28513040513/secrets/${_SLACK_SIGNING_SECRET}:latest
     id: Deploy
     entrypoint: gcloud
     waitFor: ['Show Substitutions']
