@@ -137,7 +137,7 @@ def forward_event(data, ping_url, api_key, bot_name):
             ping_url,
             headers=headers,
             json=data,
-            timeout=20
+            timeout=120
         )
         print("response: ", response)
         if response.status_code >= 200 and response.status_code < 300:
