@@ -37,24 +37,24 @@ if not os.environ.get("PING_URL"):
     exit(1)
 
 # --- Health Check Server ---
-class HealthCheckHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        # Respond with 200 OK for any GET request
-        self.send_response(200)
-        self.send_header("Content-type", "text/plain")
-        self.end_headers()
-        self.wfile.write(b"OK")
+# class HealthCheckHandler(BaseHTTPRequestHandler):
+#     def do_GET(self):
+#         # Respond with 200 OK for any GET request
+#         self.send_response(200)
+#         self.send_header("Content-type", "text/plain")
+#         self.end_headers()
+#         self.wfile.write(b"OK")
 
-def run_health_check_server(port):
-    server_address = ('', port)
-    httpd = HTTPServer(server_address, HealthCheckHandler)
-    logging.info(f"Starting health check server on port {port}")
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    logging.info(f"Stopped health check server on port {port}")
+# def run_health_check_server(port):
+#     server_address = ('', port)
+#     httpd = HTTPServer(server_address, HealthCheckHandler)
+#     logging.info(f"Starting health check server on port {port}")
+#     try:
+#         httpd.serve_forever()
+#     except KeyboardInterrupt:
+#         pass
+#     httpd.server_close()
+#     logging.info(f"Stopped health check server on port {port}")
 # --- End Health Check Server ---
 
 def start_bot(bot_name, bot_token, ping_url, api_key):
@@ -109,9 +109,9 @@ def start_bot(bot_name, bot_token, ping_url, api_key):
         logger.error(f"({bot_name}) Uncaught error: {error}")
         logger.error(f"({bot_name}) Request body: {body}")
 
-    health_check_port = 8080
-    health_thread = threading.Thread(target=run_health_check_server, args=(health_check_port,), daemon=True)
-    health_thread.start()
+    # health_check_port = 8080
+    # health_thread = threading.Thread(target=run_health_check_server, args=(health_check_port,), daemon=True)
+    # health_thread.start()
 
     print(f"Info: Starting {bot_name} in HTTP Mode!")
     try:
